@@ -93,10 +93,10 @@ describe('total likes', () => {
 });
 
 describe('favorite blog', () => {
-  test('when list has no blogs, equal to null', () => {
+  test('when list has no blogs, equals to undefined', () => {
     const result = listHelper.favoriteBlog(listWithNoBlogs);
     expect(result)
-      .toEqual(null);
+      .toBeUndefined();
   });
 
   test('when list has only one blog, equals the only blog', () => {
@@ -116,6 +116,32 @@ describe('favorite blog', () => {
         title: 'Canonical string reduction',
         author: 'Edsger W. Dijkstra',
         likes: 12,
+      });
+  });
+});
+
+describe('most blogs', () => {
+  test('when list has no blogs, equals to undefined', () => {
+    const result = listHelper.mostBlogs(listWithNoBlogs);
+    expect(result)
+      .toBeUndefined();
+  });
+
+  test('when list has only one blog, equals to author of that blog', () => {
+    const result = listHelper.mostBlogs(listWithOneBlog);
+    expect(result)
+      .toEqual({
+        author: listWithOneBlog[0].author,
+        blogs: 1,
+      });
+  });
+
+  test('when list has more than one blog, equals to the author with the most number of blogs', () => {
+    const result = listHelper.mostBlogs(listWithMoreBlogs);
+    expect(result)
+      .toEqual({
+        author: 'Robert C. Martin',
+        blogs: 3,
       });
   });
 });
