@@ -18,5 +18,6 @@ module.exports = {
       args: 'none',
       ignoreRestSiblings: false,
     }],
+    'no-underscore-dangle': 'off',
   },
 };
