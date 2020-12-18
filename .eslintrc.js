@@ -13,7 +13,7 @@ module.exports = {
   },
   rules: {
     'no-console': 'off',
-    'no-unused-vars': ['error', {
+    'no-unused-vars': ['warn', {
       vars: 'all',
       args: 'none',
       ignoreRestSiblings: false,
