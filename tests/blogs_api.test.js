@@ -49,6 +49,15 @@ test('a valid blog can be added', async () => {
     .toHaveLength(helper.initialBlogs.length + 1);
 });
 
+test('unique identifier property of the blog posts is named id', async () => {
+  const response = await api
+    .get('/api/blogs');
+  response.body.forEach((blog) => {
+    expect(blog.id)
+      .toBeDefined();
+  });
+});
+
 afterAll(async () => {
   await mongoose.connection.close();
 });

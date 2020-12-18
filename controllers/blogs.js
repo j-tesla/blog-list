@@ -4,14 +4,16 @@ const blogsRouter = require('express')
 const Blog = require('../models/blog');
 
 blogsRouter.get('/', async (request, response) => {
-  const blogs = await Blog.find({});
+  let blogs = await Blog.find({});
+  blogs = await blogs.map((blog) => blog.toJSON());
   response.json(blogs);
 });
 
 blogsRouter.post('/', async (request, response) => {
   const blog = new Blog(request.body);
 
-  const result = await blog.save();
+  let result = await blog.save();
+  result = result.toJSON();
   response.status(201)
     .json(result);
 });
