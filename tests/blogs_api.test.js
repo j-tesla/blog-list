@@ -25,7 +25,8 @@ test('blogs are returned as json', async () => {
 
 test('all notes are returned', async () => {
   const response = await api
-    .get('/api/blogs');
+    .get('/api/blogs')
+    .expect(200);
   expect(response.body)
     .toHaveLength(helper.initialBlogs.length);
 });
@@ -56,6 +57,21 @@ test('unique identifier property of the blog posts is named id', async () => {
     expect(blog.id)
       .toBeDefined();
   });
+});
+
+test('likes property is defaulted to zero', async () => {
+  const newBlog = {
+    title: 'This blog is not Liked',
+    author: 'Jayanth PSY',
+    url: 'https://localhost:8080',
+  };
+
+  const response = await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(201);
+  expect(response.body.likes)
+    .toBe(0);
 });
 
 afterAll(async () => {
