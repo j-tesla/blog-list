@@ -74,6 +74,30 @@ test('likes property is defaulted to zero', async () => {
     .toBe(0);
 });
 
+test('title is mandatory for a blog', async () => {
+  const invalidBlog = {
+    author: 'Jayanth PSY',
+    url: 'https://localhost:8080',
+    likes: 5,
+  };
+  await api
+    .post('/api/blogs')
+    .send(invalidBlog)
+    .expect(400);
+});
+
+test('url is mandatory for a blog', async () => {
+  const invalidBlog = {
+    title: 'Is url field mandatory?',
+    author: 'Jayanth PSY',
+    likes: 1,
+  };
+  await api
+    .post('/api/blogs')
+    .send(invalidBlog)
+    .expect(400);
+});
+
 afterAll(async () => {
   await mongoose.connection.close();
 });
