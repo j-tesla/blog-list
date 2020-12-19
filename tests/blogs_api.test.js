@@ -101,6 +101,20 @@ describe('addition of a new blog', () => {
   });
 });
 
+describe('deletion of a blog', () => {
+  test('succeeds with an existing id', async () => {
+    const blogs = await helper.blogsInDb();
+    const blogToDelete = blogs[Math.round(Math.random() * blogs.length)];
+    const response = await api
+      .delete(`/api/blogs/${blogToDelete.id}`)
+      .expect(204);
+
+    const blogsNew = await helper.blogsInDb();
+    expect(blogsNew.length)
+      .toBe(blogs.length - 1);
+  });
+});
+
 afterAll(async () => {
   await mongoose.connection.close();
 });
