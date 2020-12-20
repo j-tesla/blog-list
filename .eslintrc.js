@@ -20,5 +20,6 @@ module.exports = {
       ignoreRestSiblings: false,
     }],
     'no-underscore-dangle': 'off',
+    'consistent-return': 'warn',
   },
 };

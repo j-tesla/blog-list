@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const supertest = require('supertest');
+
 const helper = require('./test_helper');
 const app = require('../app');
 const Blog = require('../models/blog');
@@ -25,17 +26,17 @@ describe('when there is initially some blogs saved', () => {
   });
 
   test('all blogs are returned', async () => {
-    const response = await api
+    const { body } = await api
       .get('/api/blogs')
       .expect(200);
-    expect(response.body)
+    expect(body)
       .toHaveLength(helper.initialBlogs.length);
   });
 
   test('blogs have identifier property named id', async () => {
-    const response = await api
+    const { body } = await api
       .get('/api/blogs');
-    response.body.forEach((blog) => {
+    body.forEach((blog) => {
       expect(blog.id)
         .toBeDefined();
     });
@@ -92,11 +93,12 @@ describe('when there is initially some blogs saved', () => {
         url: 'https://localhost:8080/no-likes',
       };
 
-      const response = await api
+      const { body } = await api
         .post('/api/blogs')
         .send(newBlog)
-        .expect(201);
-      expect(response.body.likes)
+        .expect(201)
+        .expect('Content-Type', /application\/json/);
+      expect(body.likes)
         .toBe(0);
     });
   });
@@ -132,7 +134,8 @@ describe('when there is initially some blogs saved', () => {
         .expect(200, {
           ...updatedBlog,
           id: blogToUpdate.id,
-        });
+        })
+        .expect('Content-Type', /application\/json/);
     });
 
     test('changes reflect in the database with an existing id', async () => {

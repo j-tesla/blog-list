@@ -1,6 +1,7 @@
 const blogsRouter = require('express')
   .Router();
 require('express-async-errors');
+const _ = require('lodash');
 
 const Blog = require('../models/blog');
 
@@ -11,7 +12,7 @@ blogsRouter.get('/', async (req, res) => {
 });
 
 blogsRouter.post('/', async (req, res) => {
-  const blog = new Blog(req.body);
+  const blog = new Blog(_.pick(req.body, ['title', 'author', 'url', 'likes']));
 
   let result = await blog.save();
   result = result.toJSON();
@@ -26,15 +27,14 @@ blogsRouter.delete('/:id', async (req, res) => {
 });
 
 blogsRouter.put('/:id', async (req, res) => {
-  delete req.body.id;
-  const blog = await Blog.findByIdAndUpdate(req.params.id, req.body,
+  const updatedBlog = await Blog.findByIdAndUpdate(req.params.id, _.pick(req.body, ['title', 'author', 'url', 'likes']),
     {
       new: true,
       runValidators: true,
       context: 'query',
     });
-  if (blog) {
-    return res.json(blog.toJSON());
+  if (updatedBlog) {
+    return res.json(updatedBlog.toJSON());
   }
   return res.status(404)
     .send({ error: 'requested resource not found' });
