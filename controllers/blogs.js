@@ -4,18 +4,18 @@ require('express-async-errors');
 
 const Blog = require('../models/blog');
 
-blogsRouter.get('/', async (request, response) => {
+blogsRouter.get('/', async (req, res) => {
   let blogs = await Blog.find({});
   blogs = await blogs.map((blog) => blog.toJSON());
-  response.json(blogs);
+  res.json(blogs);
 });
 
-blogsRouter.post('/', async (request, response) => {
-  const blog = new Blog(request.body);
+blogsRouter.post('/', async (req, res) => {
+  const blog = new Blog(req.body);
 
   let result = await blog.save();
   result = result.toJSON();
-  response.status(201)
+  res.status(201)
     .json(result);
 });
 
