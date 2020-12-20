@@ -7,7 +7,8 @@ const User = require('../models/user');
 const errors = require('../utils/errors');
 
 usersRouter.get('/', async (req, res) => {
-  let users = await User.find({});
+  let users = await User.find({})
+    .populate('blogs');
   users = await users.map((blog) => blog.toJSON());
   res.json(users);
 });
