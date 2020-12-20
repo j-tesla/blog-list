@@ -105,13 +105,55 @@ describe('deletion of a blog', () => {
   test('succeeds with an existing id', async () => {
     const blogs = await helper.blogsInDb();
     const blogToDelete = blogs[Math.round(Math.random() * blogs.length)];
-    const response = await api
+
+    await api
       .delete(`/api/blogs/${blogToDelete.id}`)
       .expect(204);
 
     const blogsNew = await helper.blogsInDb();
     expect(blogsNew.length)
       .toBe(blogs.length - 1);
+  });
+});
+
+describe('updating likes of a blog', () => {
+  test('succeeds with an existing id and responds with the same updated information', async () => {
+    const blogs = await helper.blogsInDb();
+    const blogToUpdate = blogs[Math.round(Math.random() * blogs.length)];
+    const updatedBlog = {
+      ...blogToUpdate,
+      likes: blogToUpdate.likes + Math.round(Math.random() * 10),
+    };
+    delete updatedBlog.id;
+
+    await api
+      .put(`/api/blogs/${blogToUpdate.id}`)
+      .send(updatedBlog)
+      .expect(200, {
+        ...updatedBlog,
+        id: blogToUpdate.id,
+      });
+  });
+
+  test('changes reflect in the database with an existing id', async () => {
+    const blogs = await helper.blogsInDb();
+    const blogToUpdate = blogs[Math.round(Math.random() * blogs.length)];
+    const updatedBlog = {
+      ...blogToUpdate,
+      likes: blogToUpdate.likes + Math.round(Math.random() * 10),
+    };
+    delete updatedBlog.id;
+
+    await api
+      .put(`/api/blogs/${blogToUpdate.id}`)
+      .send(updatedBlog);
+
+    const blogsNew = await helper.blogsInDb();
+    expect(blogsNew)
+      .toContainEqual({
+        ...updatedBlog,
+        id: blogToUpdate.id,
+      });
   });
 });
 
