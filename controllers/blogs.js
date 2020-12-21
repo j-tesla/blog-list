@@ -17,7 +17,10 @@ blogsRouter.get('/', async (req, res) => {
 });
 
 blogsRouter.post('/', async (req, res) => {
-  const { body, token } = req;
+  const {
+    body,
+    token,
+  } = req;
 
   const decodedToken = jwt.verify(token, config.SECRET);
   if (!token || !decodedToken.id) {
@@ -40,13 +43,7 @@ blogsRouter.post('/', async (req, res) => {
 });
 
 blogsRouter.delete('/:id', async (req, res) => {
-  await Blog.findByIdAndDelete(req.params.id);
-  res.status(204)
-    .end();
-});
-
-blogsRouter.put('/:id', async (req, res) => {
-  const { body, token } = req;
+  const { token } = req;
   const decodedToken = jwt.verify(token, config.SECRET);
   if (!token || !decodedToken.id) {
     throw new errors.AuthorizationError('token missing or invalid');
@@ -54,20 +51,45 @@ blogsRouter.put('/:id', async (req, res) => {
 
   const user = await User.findById(decodedToken.id);
   const blogToUpdate = await Blog.findById(req.params.id);
-  if (user._id.toString() !== blogToUpdate.user.toString()) {
-    throw new errors.AuthorizationError('user does not have access to write the requested resource');
+  if (!blogToUpdate) {
+    return;
   }
-  const updatedBlog = await Blog.findByIdAndUpdate(req.params.id, _.pick(body, ['title', 'author', 'url', 'likes']),
+  if (user._id.toString() !== blogToUpdate.user.toString()) {
+    throw new errors.PermissionError('user does not have access to modify the requested resource');
+  }
+
+  await Blog.findByIdAndDelete(req.params.id);
+  res.status(204)
+    .end();
+});
+
+blogsRouter.put('/:id', async (req, res) => {
+  const {
+    body,
+    token,
+  } = req;
+  const decodedToken = jwt.verify(token, config.SECRET);
+  if (!token || !decodedToken.id) {
+    throw new errors.AuthorizationError('token missing or invalid');
+  }
+
+  const user = await User.findById(decodedToken.id);
+  const blogToUpdate = await Blog.findById(req.params.id);
+  if (!blogToUpdate) {
+    throw new errors.ResourceError('requested resource is not found');
+  }
+  let changeableProperties = ['likes'];
+  if (user._id.toString() === blogToUpdate.user.toString()) {
+    changeableProperties = _.concat(changeableProperties, ['title', 'author', 'url', 'likes']);
+  }
+  const updatedBlog = await Blog.findByIdAndUpdate(req.params.id,
+    _.pick(body, changeableProperties),
     {
       new: true,
       runValidators: true,
       context: 'query',
     });
-  if (updatedBlog) {
-    return res.json(updatedBlog.toJSON());
-  }
-  return res.status(404)
-    .send({ error: 'requested resource not found' });
+  res.json(updatedBlog.toJSON());
 });
 
 module.exports = blogsRouter;

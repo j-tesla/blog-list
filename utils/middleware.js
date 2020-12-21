@@ -1,4 +1,5 @@
 const logger = require('./logger');
+const errors = require('./errors');
 
 const tokenExtractor = (req, res, next) => {
   const authorization = req.get('authorization');
@@ -10,8 +11,7 @@ const tokenExtractor = (req, res, next) => {
 };
 
 const unknownEndpoint = (req, res) => {
-  res.status(404)
-    .send({ error: 'unknown endpoint' });
+  throw new errors.ResourceError('unknown endpoint');
 };
 
 // eslint-disable-next-line consistent-return
@@ -26,11 +26,10 @@ const errorHandler = (error, req, res, next) => {
     return res.status(400)
       .json({ error: error.message });
   }
-  if (error.name === 'AuthorizationError') {
-    return res.status(401)
+  if (error instanceof errors.ClientError) {
+    return res.status(error.statusCode)
       .json({ error: error.message });
   }
-
   if (error.name === 'JsonWebTokenError') {
     return res.status(401)
       .json({ error: 'invalid token' });

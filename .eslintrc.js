@@ -21,5 +21,6 @@ module.exports = {
     }],
     'no-underscore-dangle': 'off',
     'consistent-return': 'warn',
+    'max-classes-per-file': 'off',
   },
 };
