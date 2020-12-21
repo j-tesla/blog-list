@@ -1,3 +1,4 @@
+const jwt = require('jsonwebtoken');
 const blogsRouter = require('express')
   .Router();
 require('express-async-errors');
@@ -5,6 +6,17 @@ const _ = require('lodash');
 
 const Blog = require('../models/blog');
 const User = require('../models/user');
+const config = require('../utils/config');
+const errors = require('../utils/errors');
+
+const getTokenFrom = (request) => {
+  const authorization = request.get('authorization');
+  if (authorization && authorization.toLowerCase()
+    .startsWith('bearer ')) {
+    return authorization.substring(7);
+  }
+  return null;
+};
 
 blogsRouter.get('/', async (req, res) => {
   let blogs = await Blog.find({})
@@ -14,8 +26,16 @@ blogsRouter.get('/', async (req, res) => {
 });
 
 blogsRouter.post('/', async (req, res) => {
-  const user = await User.findById(req.body.userID);
-  let blog = _.pick(req.body, ['title', 'author', 'url', 'likes']);
+  const { body } = req;
+
+  const token = getTokenFrom(req);
+  const decodedToken = jwt.verify(token, config.SECRET);
+  if (!token || !decodedToken.id) {
+    throw new errors.AuthorizationError('token missing or invalid');
+  }
+
+  const user = await User.findById(decodedToken.id);
+  let blog = _.pick(body, ['title', 'author', 'url', 'likes']);
   blog = {
     ...blog,
     user: user._id,
@@ -36,7 +56,20 @@ blogsRouter.delete('/:id', async (req, res) => {
 });
 
 blogsRouter.put('/:id', async (req, res) => {
-  const updatedBlog = await Blog.findByIdAndUpdate(req.params.id, _.pick(req.body, ['title', 'author', 'url', 'likes']),
+  const { body } = req;
+
+  const token = getTokenFrom(req);
+  const decodedToken = jwt.verify(token, config.SECRET);
+  if (!token || !decodedToken.id) {
+    throw new errors.AuthorizationError('token missing or invalid');
+  }
+
+  const user = await User.findById(decodedToken.id);
+  const blogToUpdate = await Blog.findById(req.params.id);
+  if (user._id.toString() !== blogToUpdate.user.toString()) {
+    throw new errors.AuthorizationError('user does not have access to write the requested resource');
+  }
+  const updatedBlog = await Blog.findByIdAndUpdate(req.params.id, _.pick(body, ['title', 'author', 'url', 'likes']),
     {
       new: true,
       runValidators: true,
