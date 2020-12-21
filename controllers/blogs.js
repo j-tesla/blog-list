@@ -28,6 +28,9 @@ blogsRouter.post('/', async (req, res) => {
   }
 
   const user = await User.findById(decodedToken.id);
+  if (!user) {
+    throw new errors.AuthorizationError('token missing or invalid');
+  }
   let blog = _.pick(body, ['title', 'author', 'url', 'likes']);
   blog = {
     ...blog,
@@ -50,6 +53,9 @@ blogsRouter.delete('/:id', async (req, res) => {
   }
 
   const user = await User.findById(decodedToken.id);
+  if (!user) {
+    throw new errors.AuthorizationError('token missing or invalid');
+  }
   const blogToUpdate = await Blog.findById(req.params.id);
   if (!blogToUpdate) {
     return;
@@ -74,13 +80,16 @@ blogsRouter.put('/:id', async (req, res) => {
   }
 
   const user = await User.findById(decodedToken.id);
+  if (!user) {
+    throw new errors.AuthorizationError('token missing or invalid');
+  }
   const blogToUpdate = await Blog.findById(req.params.id);
   if (!blogToUpdate) {
     throw new errors.ResourceError('requested resource is not found');
   }
   let changeableProperties = ['likes'];
   if (user._id.toString() === blogToUpdate.user.toString()) {
-    changeableProperties = _.concat(changeableProperties, ['title', 'author', 'url', 'likes']);
+    changeableProperties = _.concat(changeableProperties, ['title', 'author', 'url']);
   }
   const updatedBlog = await Blog.findByIdAndUpdate(req.params.id,
     _.pick(body, changeableProperties),
