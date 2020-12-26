@@ -17,10 +17,7 @@ blogsRouter.get('/', async (req, res) => {
 });
 
 blogsRouter.post('/', async (req, res) => {
-  const {
-    body,
-    token,
-  } = req;
+  const { body, token } = req;
 
   const decodedToken = jwt.verify(token, config.SECRET);
   if (!token || !decodedToken.id) {
@@ -41,6 +38,7 @@ blogsRouter.post('/', async (req, res) => {
   const savedBlog = await blog.save();
   user.blogs = user.blogs.concat(savedBlog._id);
   await user.save();
+  await Blog.populate(savedBlog, { path: 'user' });
   res.status(201)
     .json(savedBlog.toJSON());
 });
@@ -98,6 +96,7 @@ blogsRouter.put('/:id', async (req, res) => {
       runValidators: true,
       context: 'query',
     });
+  await Blog.populate(updatedBlog, { path: 'user' });
   res.json(updatedBlog.toJSON());
 });
 
