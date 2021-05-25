@@ -96,6 +96,17 @@ describe('when there is initially some blogs saved', () => {
       expect(blogsAtEnd)
         .toHaveLength(helper.initialBlogs.length + helper.otherInitialBlogs.length);
     });
+
+    test('addition of new comment to valid blog fails', async () => {
+      const comment = { comment: 'Comment!!' };
+
+      const blogs = await helper.blogsInDb(savedUser.id);
+      const blogToComment = blogs[0];
+      await api
+        .post(`/api/blogs/${blogToComment.id}/comments`)
+        .send(comment)
+        .expect(401, { error: 'token missing or invalid' });
+    });
   });
 
   describe('with a valid token', () => {
@@ -327,7 +338,10 @@ describe('when there is initially some blogs saved', () => {
           .expect('Content-Type', /application\/json/);
 
         expect(_.pick(body, ['id', 'author', 'likes', 'url', 'title']))
-          .toEqual(_.pick({ ...updatedBlog, id: blogToUpdate.id }, ['id', 'author', 'likes', 'url', 'title']));
+          .toEqual(_.pick({
+            ...updatedBlog,
+            id: blogToUpdate.id,
+          }, ['id', 'author', 'likes', 'url', 'title']));
       });
 
       test('changes reflect in the database with an existing id', async () => {
@@ -371,6 +385,27 @@ describe('when there is initially some blogs saved', () => {
         const blogsNew = await helper.blogsInDb(otherSavedUser.id);
         expect(blogsNew)
           .toContainEqual(blogToUpdate);
+      });
+    });
+
+    describe('addition of a new comment to a exisiting blog', () => {
+      test('succeeds and responds with updated blog', async () => {
+        const comment = { comment: 'Comment!!' };
+
+        const blogs = await helper.blogsInDb(savedUser.id);
+        const blogToComment = blogs[0];
+        const { body } = await api
+          .post(`/api/blogs/${blogToComment.id}/comments`)
+          .send(comment)
+          .set('Authorization', `Bearer ${token}`)
+          .expect(201)
+          .expect('Content-Type', /application\/json/);
+
+        expect(body.comments)
+          .toContain(comment.comment);
+
+        expect(body.id)
+          .toEqual(blogToComment.id);
       });
     });
   });
