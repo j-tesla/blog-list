@@ -32,6 +32,7 @@ blogsRouter.post('/', async (req, res) => {
   blog = {
     ...blog,
     user: user._id,
+    comments: [],
   };
   blog = new Blog(blog);
 
@@ -101,6 +102,34 @@ blogsRouter.put('/:id', async (req, res) => {
     });
   await Blog.populate(updatedBlog, { path: 'user' });
   res.json(updatedBlog.toJSON());
+});
+
+blogsRouter.post('/:id/comments', async (req, res) => {
+  const { token } = req;
+  const decodedToken = jwt.verify(token, config.SECRET);
+  if (!token || !decodedToken.id) {
+    throw new errors.AuthorizationError('token missing or invalid');
+  }
+
+  const user = await User.findById(decodedToken.id);
+  if (!user) {
+    throw new errors.AuthorizationError('token missing or invalid');
+  }
+  const blogToUpdate = await Blog.findById(req.params.id);
+  if (!blogToUpdate) {
+    return;
+  }
+
+  if (req.body.comment) {
+    blogToUpdate.comments = [...blogToUpdate.comments, req.body.comment];
+    const savedBlog = await blogToUpdate.save();
+    await Blog.populate(savedBlog, { path: 'user' });
+    res.status(201)
+      .json(savedBlog.toJSON());
+  } else {
+    res.status(400)
+      .json(({ error: 'comment is missing in request' }).toJSON());
+  }
 });
 
 module.exports = blogsRouter;

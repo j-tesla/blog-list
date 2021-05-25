@@ -5,6 +5,8 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const morgan = require('morgan');
 
+const logger = require('./utils/logger');
+
 const loginRouter = require('./controllers/login');
 const usersRouter = require('./controllers/users');
 const blogsRouter = require('./controllers/blogs');
@@ -16,7 +18,13 @@ mongoose.connect(config.mongoUrl, {
   useUnifiedTopology: true,
   useFindAndModify: false,
   useCreateIndex: true,
-});
+}).then(() => {
+  logger.info(`connected to ${config.mongoUrl}`);
+}).catch(((reason) => {
+  logger.error(`failed to connect to${config.mongoUrl}`);
+  logger.error(reason);
+  process.exit(500);
+}));
 
 app.use(cors());
 app.use(express.json());
