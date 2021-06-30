@@ -1,2 +1,2 @@
-release: npm build
+release: npm run build
 web: npm start
