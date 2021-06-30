@@ -1,6 +1,8 @@
 const express = require('express');
+const path = require('path');
 
 const app = express();
+
 const cors = require('cors');
 const mongoose = require('mongoose');
 const morgan = require('morgan');
@@ -12,7 +14,6 @@ const usersRouter = require('./controllers/users');
 const blogsRouter = require('./controllers/blogs');
 const config = require('./utils/config');
 const middleware = require('./utils/middleware');
-const path = require('path');
 
 mongoose.connect(config.mongoUrl, {
   useNewUrlParser: true,
