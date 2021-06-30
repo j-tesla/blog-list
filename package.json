@@ -4,7 +4,9 @@
   "description": "a blog list application, that allows users to save information about interesting blogs they have stumbled across on the internet",
   "main": "index.js",
   "scripts": {
+    "postinstall": "cd frontend && npm install",
     "start": "NODE_ENV=production node index.js",
+    "build": "cd frontend && npm build",
     "dev": "NODE_ENV=development nodemon index.js",
     "test": "NODE_ENV=test jest --verbose --runInBand",
     "start:test": "NODE_ENV=test node index.js"
