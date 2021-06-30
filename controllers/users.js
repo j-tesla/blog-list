@@ -20,6 +20,11 @@ usersRouter.post('/', async (req, res) => {
   if (body.password.length < 3) throw new errors.ValidationError('User validation failed: password: should be at least 3 characters long');
   const passwordHash = await bcrypt.hash(body.password, saltRounds);
 
+  if (await User.findOne({ username: body.username })) {
+    console.error('hello --------------------------------------');
+    throw new errors.ValidationError('User validation failed: username: already exists');
+  }
+
   const user = new User({
     username: body.username,
     name: body.name,
