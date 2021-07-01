@@ -31,3 +31,4 @@ jobs:
       env: 
         TEST_MONGODB_URL: ${{secrets.TEST_MONGODB_URL}}
         SECRET: ${{secrets.SECRET}}
+        PORT: 3003
