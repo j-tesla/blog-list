@@ -32,5 +32,5 @@ jobs:
     - run: npm test
       env: 
         TEST_MONGODB_URL: mongodb://localhost:27017/bloglist-test
-        SECRET: ${{secrets.SECRET}}
+        SECRET: "It's not who you are underneath, it's what you do that defines you."
         PORT: 3003
