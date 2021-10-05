@@ -26,8 +26,9 @@ jobs:
       uses: actions/setup-node@v2
       with:
         node-version: ${{ matrix.node-version }}
-    - name: Create mongoDB Docker container for API testing
-      uses: DigiPie/mongo-action@v1.0.1
+    - name: MongoDB in GitHub Actions
+      uses: supercharge/mongodb-github-action@1.6.0
+
     - run: npm ci
     - run: npm test
       env: 
