@@ -18,16 +18,16 @@ const middleware = require('./utils/middleware');
 mongoose.connect(config.mongoUrl, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-  useFindAndModify: false,
-  useCreateIndex: true,
-}).then(() => {
-  logger.info(`connected to ${config.mongoUrl}`);
-})
-  .catch(((reason) => {
+  // useFindAndModify: false,
+  // useCreateIndex: true,
+}, (error) => {
+  if (error) {
     logger.error(`failed to connect to${config.mongoUrl}`);
-    logger.error(reason);
+    logger.error(error);
     process.exit(500);
-  }));
+  }
+  logger.info(`connected to ${config.mongoUrl}`);
+});
 
 app.use(cors());
 app.use(express.json());
