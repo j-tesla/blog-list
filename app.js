@@ -15,12 +15,7 @@ const blogsRouter = require('./controllers/blogs');
 const config = require('./utils/config');
 const middleware = require('./utils/middleware');
 
-mongoose.connect(config.mongoUrl, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  useFindAndModify: false,
-  useCreateIndex: true,
-}).then(() => {
+mongoose.connect(config.mongoUrl).then(() => {
   logger.info(`connected to ${config.mongoUrl}`);
 })
   .catch(((reason) => {
