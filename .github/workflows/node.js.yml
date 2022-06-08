@@ -38,3 +38,8 @@ jobs:
         TEST_MONGODB_URL: mongodb://localhost:27017/bloglist-test
         SECRET: "It's not who you are underneath, it's what you do that defines you."
         PORT: 3003
+    - uses: EndBug/add-and-commit@v9
+      with: 
+        message: lint
+        add: '*.js'
+
