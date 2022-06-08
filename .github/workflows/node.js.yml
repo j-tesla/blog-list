@@ -32,6 +32,7 @@ jobs:
         mongodb-version: '4.4'
 
     - run: npm ci
+    - run: npm run lint
     - run: npm test
       env: 
         TEST_MONGODB_URL: mongodb://localhost:27017/bloglist-test
