@@ -93,13 +93,15 @@ blogsRouter.put('/:id', async (req, res) => {
   if (user._id.toString() === blogToUpdate.user.toString()) {
     changeableProperties = _.concat(changeableProperties, ['title', 'author', 'url']);
   }
-  const updatedBlog = await Blog.findByIdAndUpdate(req.params.id,
+  const updatedBlog = await Blog.findByIdAndUpdate(
+    req.params.id,
     _.pick(body, changeableProperties),
     {
       new: true,
       runValidators: true,
       context: 'query',
-    });
+    },
+  );
   await Blog.populate(updatedBlog, { path: 'user' });
   res.json(updatedBlog.toJSON());
 });
